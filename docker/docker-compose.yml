@@ -35,7 +35,7 @@ services:
         - NODEJS_VERSION=${NODEJS_VERSION}
     image: ${PROJECT_NAME}_node
     container_name: ${PROJECT_NAME}_node_1
-    command: sh /home/command.sh
+    # command: sh /home/command.sh
     #restart: always   
     volumes:
       - ../:/home/node/app
