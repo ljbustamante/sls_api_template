@@ -1,0 +1,36 @@
+service: ${env:PROJECT_NAME}
+useDotenv: true
+
+frameworkVersion: '2 || 3'
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs${env:NODEJS_VERSION}.x
+  lambdaHashingVersion: 20201221
+  region: ${env:AWS_DEFAULT_REGION}
+  vpc:
+      securityGroupIds:
+        - sg-0b85aaa507684c23f
+      subnetIds:
+        - subnet-011aa21e18c75f756
+        - subnet-044ba5d5d4485c428
+  environment:
+    DB_HOST: ${env:DB_HOST}
+    DB_USER: ${env:DB_USER}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_NAME: ${env:DB_NAME}
+
+functions:
+  hello:
+    handler: handler.hello
+  app: 
+    handler: src/index.handler
+    events:
+      - http: 'ANY {proxy+}'
+
+custom:
+  serverless-offline:
+    httpPort: ${env:SLS_OFFLINE_PORT}

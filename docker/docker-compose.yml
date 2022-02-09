@@ -1,0 +1,45 @@
+version: '2'
+services:
+  db:
+    build:
+      context: ../
+      dockerfile: ./docker/database/Dockerfile
+      args:
+        - MARIADB_VERSION=${MARIADB_VERSION}
+        - DB_HOST=${DB_HOST}
+        - DB_NAME=${DB_NAME}
+        # Estas contraseñas se definen en el primer build de la imagen ya que se guardan 
+        # en la carpeta de datos (/database) del proyecto y es necesario borrar los datos 
+        # de la carpeta para volver a definirlas
+        - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+        - DB_USER=${DB_USER}
+        - DB_PASSWORD=${DB_PASSWORD} 
+    image: ${PROJECT_NAME}_db
+    container_name: ${PROJECT_NAME}_db_1
+    restart: on-failure
+    volumes:
+      - ../database/:/var/lib/mysql
+    ports:
+      - ${DB_PORT}:3306
+
+  node:
+    environment:
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_NAME: ${DB_NAME}
+    build:
+      context: ../
+      dockerfile: ./docker/node/Dockerfile
+      args:
+        - NODEJS_VERSION=${NODEJS_VERSION}
+    image: ${PROJECT_NAME}_node
+    container_name: ${PROJECT_NAME}_node_1
+    command: sh /home/command.sh
+    #restart: always   
+    volumes:
+      - ../:/home/node/app
+    ports:
+      - ${SLS_OFFLINE_PORT}:${SLS_OFFLINE_PORT}
+    depends_on:
+      - db
